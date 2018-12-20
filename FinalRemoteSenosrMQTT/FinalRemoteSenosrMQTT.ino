@@ -9,11 +9,11 @@
 const int mqttPort =1883;
 #define mqttUser "theonlymqtt"
 #define mqttPassword  "thereisnotpassword"
-#define deviceName "Indoor0" // (Outdoor0, Outdoor1, Attic, Inside0, Inside1)
-#define tempTopic "sensor/temperature/indoor0" // (outdoor0, outdoor1, attic, inside0, inside1)
-#define humTopic "sensor/humidity/indoor0" // (outdoor0, outdoor1, attic, inside0, inside1)
-#define presTopic "sensor/pressure/indoor0" // (outdoor0, outdoor1, attic, inside0, inside1)
-#define minutesAFK 5 // 10 for outside, 5 for inside
+#define deviceName "Outdoor0" // (Outdoor0, Outdoor1, Attic, Inside0, Inside1)
+#define tempTopic "sensor/temperature/outdoor0" // (outdoor0, outdoor1, attic, inside0, inside1)
+#define humTopic "sensor/humidity/outdoor0" // (outdoor0, outdoor1, attic, inside0, inside1)
+#define presTopic "sensor/pressure/outdoor0" // (outdoor0, outdoor1, attic, inside0, inside1)
+#define minutesAFK 10 // 10 for outside, 5 for inside
 
 float temperature = 0;
 float humidity = 0;
@@ -59,8 +59,8 @@ void setup()
   client.publish(presTopic, String(pressure).c_str());
   delay(10);
 
-delay(minutesAFK * 1000); //Uncomment for indoor and comment out ESP.deepSleep
-//ESP.deepSleep(minutesAFK * 60 * 1e6); // MAKE SURE D0 is connected to RST. PLEASE DO THIS AGAIN
+//delay(minutesAFK * 1000); //Uncomment for indoor and comment out ESP.deepSleep
+ESP.deepSleep(minutesAFK * 60 * 1e6); // MAKE SURE D0 is connected to RST. PLEASE DO THIS AGAIN
 
 }
 

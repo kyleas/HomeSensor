@@ -28,6 +28,7 @@ int updateNum = -1;
 int sensors = 5; // How many sensors are there?
 int measuring = 2; // How many things are you measuring
 unsigned int minutesAllowedAFK = 20;
+unsigned int lastSaftey = 0;
 
 //=========== For LCD Display
 UTFT myGLCD(SSD1289,38,39,40,41); // CHANGE BASED ON LCD
@@ -36,7 +37,7 @@ URTouch myTouch(6, 5, 4, 3, 2);
 //============
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial1.begin(115200);
 }
 
@@ -65,8 +66,8 @@ void recvWithStartEndMarkers() {
     char endMarker = '>';
     char rc;
 
-    while (Serial.available() > 0 && newData == false) {
-        rc = Serial.read();
+    while (Serial1.available() > 0 && newData == false) {
+        rc = Serial1.read();
 
         if (recvInProgress == true) {
             if (rc != endMarker) {
@@ -159,7 +160,7 @@ void calcData() {
 
 void updatedRecent() {
   for (int i=0; i<10; i++) {
-    if (millis() - lastUpdated[i] >= minutesAllowedAFK * 1000) {
+    if (millis() - lastUpdated[i] >= minutesAllowedAFK * 60000) {
       //updatedRecently[i] = false;
       digitalWrite(updatePins[i], HIGH);
     } else {
@@ -169,9 +170,23 @@ void updatedRecent() {
   }
 }
 
-//================
-
-void updateESP8266() {
-  
+//===========
+void safetyCheck() {
+ if (millis() - lastSaftey >= 5000) {
+    if ((values[0] != 0) && (values[1] !=0)) {
+      if ((values[0] - values [1] >= 5) || (values[0] - values[1] <= -5)) {
+        digitalWrite(updatePins[5], HIGH);
+        digitalWrite(updatePins[6], HIGH);
+        Serial.println("Outdoor sensors are wack!");
+      } else { digitalWrite(updatePins[5], LOW); digitalWrite(updatePins[6], LOW); }
+    }
+    if ((values[3] != 0) && (values[4] !=0)) {
+      if ((values[3] - values [4] >= 5) || (values[3] - values[4] <= -5)) {
+        digitalWrite(updatePins[8], HIGH);
+        digitalWrite(updatePins[9], HIGH);
+        Serial.println("Indoor sensors are wack!");
+      } else { digitalWrite(updatePins[8], LOW); digitalWrite(updatePins[9], LOW); }
+    }
+ }
 }
 
