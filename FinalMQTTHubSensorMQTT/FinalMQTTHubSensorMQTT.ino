@@ -247,7 +247,7 @@ void getTime() {
 
 //====================
 void calcEmail() {
-  if (hour == 10 && minute >= 0 && minute <= 5 && hasSent == false) {
+  if (hour == 6 && minute >= 0 && minute <= 5 && hasSent == false) {
     hasSent = true;
     if (avgouttemp <= 38) {
       sendEmail("Very Cold Today. Have fun :)",
