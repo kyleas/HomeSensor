@@ -17,23 +17,23 @@ float value = 0.0; // variables to hold the parsed data
 boolean newData = false;
 String temporary;
 
+//For storing and getting data from different sensors
 String topics[10] = { "sensor/temperature/outdoor0", "sensor/temperature/outdoor1", 
              "sensor/temperature/attic", "sensor/temperature/indoor0",
              "sensor/temperature/indoor1", "sensor/humidity/outdoor0",
              "sensor/humidity/outdoor1", "sensor/humidity/attic", 
              "sensor/humidity/indoor0", "sensor/humidity/indoor1" };
-
 float values[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 unsigned long lastUpdated[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int updatePins[10] = { 27, 29, 31, 33, 35, 37, 39, 41, 43, 45 };
-//boolean updatedRecently[10] = {};
 float avgs[4] = { 0, 0, 0, 0 };
 int updateNum = -1;
 int sensors = 5; // How many sensors are there?
 int measuring = 2; // How many things are you measuring
+
+//For calulations
 unsigned int minutesAllowedAFK = 15;
 unsigned int lastSaftey = 0;
-int lengthOf = 0;
 
 //=========== For LCD Display
 //const int XP = 6, XM = A2, YP = A1, YM = 7; //ID=0x9341
@@ -48,7 +48,7 @@ int pixel_x, pixel_y;     //Touch_getXY() updates global vars
 int screen = 0;
 int prevScreen = 0;
 long lastUpdate = 0;
-
+int lengthOf = 0;
 Adafruit_GFX_Button intemp, inhum, outtemp, outhum, temp_btn, hum_btn, pres_btn, update_btn, home_btn;
 #define BLACK   0x0000
 #define BLUE    0x001F
@@ -75,7 +75,6 @@ bool Touch_getXY(void) {
 }
 
 //============
-
 void setup(void) {
     Serial.begin(115200);
     Serial1.begin(115200);
@@ -122,14 +121,10 @@ void loop() {
         calcData();
         updatedRecent();
         newData = false;
-//        screen = 1;
-//        updateDisplay();
     }
     update_button_list(buttons);  //use helper function
     updateScreen();
     button();
-//    if (intemp.justPressed()) { tft.fillRect(40, 80, 160, 80, GREEN); }
-//    if (inhum.justPressed()) { tft.fillRect(40, 80, 160, 80, RED); }
 }
 
 //============
@@ -208,6 +203,11 @@ void calcData() {
   if (updateNum > -1) {
     values[updateNum] = value;
     lastUpdated[updateNum] = millis();
+    if (updateNum == 4) {
+      if (values[4] - 2 >= values[3]) {
+        values[4] = values[3];
+      }
+    }
     
     Serial.print("Values: ");
     for(int i = 0; i < sensors*measuring; i++) { Serial.print(values[i]); Serial.print(",");}
@@ -302,7 +302,7 @@ void updateDisplay() {
   Serial.println(avgs1);
   
   if (screen == 0) { // RESET SCREEN 
-    tft.setRotation(0);
+    tft.setRotation(0 );
     tft.fillScreen(BLACK);
 
     temp_btn.initButton(&tft, 40, 440, 60, 40, BLACK, RED, BLACK, "TEMP", 2);

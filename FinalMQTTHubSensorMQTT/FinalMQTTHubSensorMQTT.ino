@@ -112,8 +112,12 @@ void loop()
   if (now - lastMsg > 50000) {
     lastMsg = now; 
   float newTemp = calcBME280(&Serial, "temp");
+  client.publish("sensor/temperature/indoor1", String(newTemp).c_str());
   float newHum = calcBME280(&Serial, "hum");
+  client.publish("sensor/humidity/indoor1", String(newHum).c_str());
+  
   }
+  client.loop();
   recvWithStartEndMarkers();
     if (newData == true) { 
         strcpy(tempChars, receivedChars);
@@ -121,7 +125,6 @@ void loop()
             //   because strtok() replaces the commas with \0
         parseData(); 
         calcData();
-        //sendEmail("IT WORKED", String(avgouttemp));
         newData = false;
     }
   currentMillis = millis();
@@ -207,7 +210,7 @@ void reconnect() {
   client.subscribe("sensor/humidity/indoor0");
 }
 float calcBME280(Stream* client, String whichOne) {
-  
+
   float temp(NAN), hum(NAN), pres(NAN);
   
   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
@@ -220,7 +223,7 @@ float calcBME280(Stream* client, String whichOne) {
   return (temp * 9/5 + 32); 
   } else if (whichOne == "hum") { Serial.print(hum); Serial.println("%");
   String thisHum(hum);
-    Serial.write(("<sensor/humidity/indoor1," + thisHum + ">").c_str()); 
+  Serial.write(("<sensor/humidity/indoor1," + thisHum + ">").c_str()); 
   return (hum); }
   else { return (hum); }
 }
@@ -280,7 +283,7 @@ void sendEmail(String header, String body) {
     .setFrom("A daily head's up")
     .setForGmail();           // simply sets port to 465 and setServer("smtp.gmail.com");  
 
-    if(SMTP.Send("kylenotshoe@gmail.com", body)) {
+    if(SMTP.Send("kurt@schumacher-family.us", body)) {
     Serial.println(F("Message sent"));
   } else {
     Serial.print(F("Error sending message: "));
