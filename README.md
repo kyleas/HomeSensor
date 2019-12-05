@@ -1,4 +1,12 @@
 # HomeSensor
 MQTT Temperature, Humidity and pressure sensor using Wemos D1Mini and BME280
 
+What is it: 
+This project is a collection of 5 sensor hubs that are located around my house (2 outside, 2 inside and 1 in the attic). 
+Each hub reports back the sensor readings (temperature, humidity, and pressure) to the central hub. That hub then parses the data and outputs the most important readings onto a small 3.5" LCD screen for a GUI. The central hub also sends an email out everyday at a certain time using the current temperature average outside to determine what to wear in the morning while biking. There is some redundency in the system as the 2 outside will get averaged and do a "safety check", so that if any sensor has not responded in awhile the data will be void and only 1 sensor will get used. This is in the case such that one sensor gets blocked from the sun for too long or it just fails. 
 
+How does it work: 
+The brain of each hub is an ESP8266, or more specifically the WeMos D1 Mini Pro, which allows each unit to connect to the internet. The main sensor is the BME280 which can sense temperature, humididty and pressure while remaining in a small and cheap package. Each outdoor hub is disconnected from mains and only relies on the sun for power. That means that I have a solar panel hooked up to each unit, which then feeds into a TP4056 power regulator, which then both charges a 18650 battery and powers the arduino. The arduino is only "awake" for a very short period of time as it goes into "deep-sleep" every 10 minutes. This means that only critical functions are powered, which means that it only draws ~20uA verus ~15mA when all functions are going. When the 4 non-central arduinos wake up, they quickly check the sensor readings then send them out to the central unit using MQTT and quickly go back to sleep. The MQTT server is hosted on a raspberry pi running the mosquito broker on hassio. 
+
+Future improvements: 
+Currently it is a pain using perf board for each unit as making all the connections correctly on 5 boards in time consuming, so the next interation will use a printed PCB. For debuging purposes after the arduino has been set up it would be great if I could know the battery voltage, so I will set up a voltage-divider and give myself that data along with the other readings. On this one I had Blynk and thinkspeak working but did not have time before I set them up to really use it properly, so in the next version I would like to use both those services to give more insight to the temperature. 
